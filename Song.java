@@ -35,11 +35,11 @@ public final class Song {
         // TODO(1.1): validate input — title/artist ห้าม null/ว่าง,
         //            tags ห้าม null และห้ามมีสมาชิกเป็น null/ว่าง
         //            ผิดเงื่อนไขให้ throw IllegalArgumentException
-                if (title == null) {
-            throw new IllegalArgumentException("title must not be null");
+                if (title == null || title.isEmpty()) {
+            throw new IllegalArgumentException("title must not be null or empty");
         }
-                    if (artist == null) {
-            throw new IllegalArgumentException("artist must not be null");
+                    if (artist == null || artist.isEmpty()) {
+            throw new IllegalArgumentException("artist must not be null or empty");
         }
         
                 if (tags == null) {
@@ -63,8 +63,7 @@ public final class Song {
     }
 
     public List<String> tags() {
-        return List.copyOf(tags);
-        // TODO(1.3): ✗ ส่งลูกศรออกไปตรง ๆ = rep exposure ขาออก → คืน "สำเนา"
+        return new ArrayList<>(tags);
     }
 
     // ---------- producer ----------
@@ -74,10 +73,7 @@ public final class Song {
      * @throws IllegalArgumentException เมื่อ tag เป็น null/ว่าง
      */
     public Song withTag(String tag) {
-        // TODO(1.4): ✗ โค้ดนี้ mutate ตัวเอง! ต้องสร้างและคืน Song ตัวใหม่แทน
-        //            (อย่าลืม validate tag ด้วย)
-        String validatedTag = tag; // validate tag
-        if (validatedTag == null || validatedTag.isEmpty()) {
+        if (tag == null || tag.trim().isEmpty()) {
             throw new IllegalArgumentException("tag must not be null or empty");
         }
         List<String> newTags = new ArrayList<>(tags);
@@ -91,20 +87,18 @@ public final class Song {
     //            เทียบ title, artist และ tags ทีละ field
     //            ตามลำดับมาตรฐาน: ตัวเอง → ชนิด (instanceof) → cast → เทียบ field
     //            ระวัง: ต้องรับ Object ไม่ใช่ Song ไม่งั้นเป็น overload ไม่ใช่ override!
-       @Override
-            public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof Song))
-    return false; 
-    Song r = (Song) o;
-       return title == r.title && artist == r.artist
-       && tags == r.tags;
-   }
-    // TODO(1.6): override hashCode() ให้สอดคล้องกับ equals
-    //            (คำนวณจาก field ชุดเดียวกัน — Objects.hash(...) ช่วยได้)
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Song)) return false;
+        Song other = (Song) o;
+        return Objects.equals(title, other.title)
+                && Objects.equals(artist, other.artist)
+                && Objects.equals(tags, other.tags);
+    }
 
     @Override
     public int hashCode() {
-    return Objects.hash(title, artist, tags);
+        return Objects.hash(title, artist, tags);
     }
 }
